@@ -28,15 +28,26 @@ fi
 }
 
 mascota_disponible() {
-    while read -r line; do COMMAND "$line"; done < mascotas_disponibles.txt
+    while read -r line; do 
+    echo "$line";
+    done < mascotas_disponibles.txt
+    # echo "aaaaa"    
 }
 
 mascota_adopcion() {
-
+    index=1;
+    while read -r line; do 
+    if [ -z "$line" ]; then
+            continue
+        fi
+    read -r name rest <<< "$line";
+    echo "$index $name";
+    ((index++));
+    done < mascotas_disponibles.txt
 }
 
 salir () {
-
+echo "salir"
 }
 
 menu_cliente() {
@@ -44,19 +55,21 @@ echo "1- Mascotas disponibles para adopción"
 echo "2- Adoptar mascota"
 echo "3- Salir"
 read option
-while [ "$option" != "1" ] || [ "$option" != "2" ] || [ "$option" != "3" ]; do
+while [ "$option" != "1" ] && [ "$option" != "2" ] && [ "$option" != "3" ]; do
     echo "Opción no válida, vuelva a ingresar opción"
     read option
 done
-if (option == "1"); then
+if [ "$option" == "1" ]; then
     mascota_disponible
-elif (option == "2"); then
+elif [ "$option" == "2" ]; then
     mascota_adopcion
 else 
     salir
 fi
 
-if $option == "1"; then
+# if $option == "1"; then
+# 
+# fi
 }
 
 login
