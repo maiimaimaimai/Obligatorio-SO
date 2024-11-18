@@ -44,6 +44,12 @@ mascota_adopcion() {
     echo "$index $name";
     ((index++));
     done < mascotas_disponibles.txt
+    echo "Seleccione una mascota para adoptar:"
+    read mascota
+    while [ ! "$mascota" <= index ] && [ ! "$mascota" > 0 ]; do
+        echo "Opción no válida, vuelva a intentar"
+        read mascota
+    done
 }
 
 salir () {
@@ -67,6 +73,23 @@ else
     salir
 fi
 
+menu_administrador() {
+echo "1- Registrar usuario"
+echo "2- Registrar mascota"
+echo "3- Salir"
+read option
+while [ "$option" != "1" ] && [ "$option" != "2" ] && [ "$option" != "3" ]; do
+    echo "Opción no válida, vuelva a ingresar opción"
+    read option
+    done
+    if [ "$option" == "1" ]; then
+        # TODO
+    elif [ "$option" == "2" ]; then
+        # TODO
+    else 
+        salir
+    fi
+}
 # if $option == "1"; then
 # 
 # fi
