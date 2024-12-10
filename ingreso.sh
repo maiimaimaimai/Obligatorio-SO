@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 login() {
 echo "Nombre de usuario:"
 read userName
@@ -17,11 +18,11 @@ while [ "$password" == "" ]; do
 done
 
 
-if grep -q "^$userName $password$" admin_usuarios.txt; then
-    menu_administrador
-elif grep -q "^$userName $password$" clientes_usuarios.txt; then
+if grep -q "^$userName@$password@" admin_usuarios.txt; then
+    menu_administrador "$userName" 
+elif grep -q "^$userName@$password@" clientes_usuarios.txt; then
     echo "Menu Cliente:"
-    menu_cliente
+    menu_cliente "$userName"
 else 
     echo "Credenciales incorrectas, vuelva a intentar."
     login
@@ -77,7 +78,7 @@ fi
 
 menu_administrador() {
     clear
-    echo "Menu Administrador:"
+    echo "Menu Administrador - Bienvenido $1"
     echo "1- Registrar usuario"
     echo "2- Registrar mascota"
     echo "3- Ver estadisticas"
@@ -104,6 +105,7 @@ menu_administrador() {
 registrarUsuario(){
     clear
     echo "Registro de usuario:"
+    #ingreso de
     echo "Ingresar nombre"
     read nombre
     while true; do
@@ -115,10 +117,16 @@ registrarUsuario(){
             echo "Se ingresó un caracter inválido (@)"
             echo "Vuelva a ingresar un nombre de usuario"
             read nombre
+        elif hayUsuarioNombre "$nombre"; then
+            echo "Nombre de usuario ya existente"
+            echo "Vuelva a ingresar un nombre de usuario"
+            read nombre
         else
             break
         fi
     done
+
+    #ingreso de
     echo "Ingresar cedula"
     read cedula
     while true; do
@@ -134,6 +142,8 @@ registrarUsuario(){
             break
         fi
     done
+
+    #ingreso de
     echo "Ingresar numero de telefono"
     read numero
     while true; do
@@ -141,14 +151,16 @@ registrarUsuario(){
             echo "No se ingresó un número"
             echo "Vuelva a ingresar un número"
             read numero
-        elif ! echo "$numero" | grep -qE '^09[0-9]{7}$'; then
+        elif ! echo "$numero" | grep -qE '^[0-9]{9}$'; then
             echo "Se ingresó un caracter inválido. Solo caracteres numéricos permitidos (9)"
-            echo "Vuelva a ingresar un número"
+            echo "Vuelva a ingresar un número de telefono"
             read numero
         else 
             break
         fi
     done
+
+    #ingreso de
     echo "Ingresar fecha (DD/MM/AAAA):"
     read fecha
     while true; do
@@ -164,6 +176,8 @@ registrarUsuario(){
             break
         fi
     done
+
+    #ingreso de
     echo "Conceder permisos de administrador? (S/N)"
     read permisos
     while true; do
@@ -173,18 +187,84 @@ registrarUsuario(){
             read permisos
         elif ! echo "$permisos" | grep -qE '^[SsNn]$'; then
             echo "No se ingresó una respuesta válida"
-            echo "Ingrese una respuesta válida (S/N)"
+            echo "Conceder permisos de administrador? (S/N)"
             read permisos
         else
             break
         fi
     done
 
-    # checkear que no esté ni en usuarios ni en admin
-    # luego meterlo a la de permisos correspondiente
-    echo "Usuario registrado correctamente(mentira)"
-    echo "usuario $nombre, con cedula $cedula, nacido el $fecha, número de contacto $numero"
-    sleep 15
+    #ingreso de
+    echo "Ingrese una contraseña"
+    read contra
+    while true; do
+        if [ -z "$contra" ]; then
+            echo "No se ingresó una contraseña"
+            echo "Ingrese una contraseña"
+            read contra
+        else
+            break
+        fi
+    done
+
+    #checkeo el tipo de usuario
+    tienePermisos=""
+    archivoUsuario=""
+    if [ "$permisos" == "s" ] || [ "$permisos" == "S" ]; then
+        tienePermisos="CON"
+        archivoUsuario="admin_usuarios.txt"
+    else
+        tienePermisos="SIN"
+        archivoUsuario="clientes_usuarios.txt"
+    fi
+
+    #confirmacion
+    echo "Confirmar usuario ($nombre), con cédula ($cedula), nacido el ($fecha), número de contacto ($numero) $tienePermisos permisos de administrador? (S/N)"
+
+    read confirmacion
+    while true; do
+        if [ -z "$confirmacion" ]; then
+            echo "No se ingresó una respuesta"
+            echo "Intente nuevamente"
+            read confirmacion
+        elif ! echo "$confirmacion" | grep -qE '^[SsNn]$'; then
+            echo "No se ingresó una respuesta válida"
+            echo "Confirma el ingreso del usuario? (S/N)"
+            read confirmacion
+        else
+            break
+        fi
+    done
+
+    if [ "$confirmacion" == "s" ] || [ "$confirmacion" == "S" ]; then
+        echo "$nombre@$contra@$cedula@$fecha@$numero" >> "$archivoUsuario"
+        echo "Usuario $nombre ingresado con éxito"
+    else
+        echo "Usuario cancelado"
+    fi
+    
+    sleep 1.5
+    echo "Ingrese X para volver al menú"
+    
+    read salir
+    while true; do
+        if ! echo "$salir" | grep -qE '^[xX]$'; then
+            echo "No se ingresó una respuesta válida"
+            echo "Ingrese X para volver al menú (S/N)"
+            read salir
+        else
+            break
+        fi
+    done
+}
+
+hayUsuarioNombre(){
+    if grep -q "^$1@" admin_usuarios.txt; then
+        return 0
+    elif grep -q "^$1@" clientes_usuarios.txt; then
+        return 0
+    fi
+    return 1;
 }
 
 login
