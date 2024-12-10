@@ -1,72 +1,85 @@
 #!/bin/bash
 clear
 login() {
-echo "Nombre de usuario:"
-read userName
-while [ "$userName" == "" ]; do 
-    echo "No se ingresó nombre de usuario"
-    echo "Vuelva a ingresar nombre de usuario:"
+    #utenticacion de nombre y contraseña
+    echo "Nombre de usuario:"
     read userName
-done
+    while [ "$userName" == "" ]; do
+        echo "No se ingresó nombre de usuario"
+        echo "Vuelva a ingresar nombre de usuario:"
+        read userName
+    done
 
-echo "Contrasena:"
-read password
-while [ "$password" == "" ]; do
-    echo "No se ingresó contrasena"
-    echo "Vuelva a ingresar contrasena:"
+    echo "Contrasena:"
     read password
-done
+    while [ "$password" == "" ]; do
+        echo "No se ingresó contrasena"
+        echo "Vuelva a ingresar contrasena:"
+        read password
+    done
 
 
-if grep -q "^$userName@$password@" admin_usuarios.txt; then
-    menu_administrador "$userName" 
-elif grep -q "^$userName@$password@" clientes_usuarios.txt; then
-    menu_cliente "$userName"
-else 
-    echo "Credenciales incorrectas, vuelva a intentar."
-    login
-fi
+    if grep -q "^$userName@$password@" admin_usuarios.txt; then
+        menu_administrador "$userName"
+    elif grep -q "^$userName@$password@" clientes_usuarios.txt; then
+        menu_cliente "$userName"
+    else
+        echo "Credenciales incorrectas, vuelva a intentar."
+        login
+    fi
 }
 
 mascota_disponible() {
-    while IFS="-" read -r id especie nombre genero edad descripcion fecha; do 
-    echo "$nombre - $especie - $edad - $descripcion";
+    clear
+    while IFS=" - " read -r id especie nombre genero edad descripcion fecha; do 
+        echo "$nombre - $especie - $edad - $descripcion";
     done < mascotas_disponibles.txt
     echo -e
 
     echo "Presione cualquier tecla para salir"
-    echo "૮˶• ﻌ •˶ა
-./づ~ 🦴"
+    echo "૮˶• ﻌ •˶ა"
+    echo "./づ~ 🦴"
     read opcion
     
     menu_cliente
 }
 
 mascota_adopcion() {
+    clear
     index=1;
-    while IFS="-" read -r id especie nombre genero edad descripcion fecha; do 
-    if [ -z "$id" ]; then
-        continue
-    fi
-    echo "$index $nombre";
-    ((index++));
+
+    while IFS=" - " read -r id especie nombre genero edad descripcion fecha; do
+        echo "$index - $nombre";
+        ((index++));
     done < mascotas_disponibles.txt
-    echo "Seleccione una mascota para adoptar:"
+    
+    echo "Seleccione una mascota para adoptar o 0 para salir:"
     read mascota
-    while [ "$mascota" -gt "$index" ] || [ "$mascota" -le 0 ]; do
+    while ! echo "$mascota" | grep -qE '^[0-9]+$' || [ "$mascota" -ge "$index" ] || [ "$mascota" -lt 0 ]; do
         echo "Opción no válida, vuelva a intentar"
         read mascota
     done
+
+    if [ "$mascota" -eq 0 ]; then
+        echo "Volviendo al menu"
+        sleep 1
+        menu_cliente
+    fi
+
     mascotaAdoptar=$(sed -n "${mascota}p" mascotas_disponibles.txt)
-    echo "$mascotaAdoptar $(date '+%d/%m/%y')" >> adopciones.txt
 
-    echo "Escriba \"si\" si desea confirmar la adopción"
-    echo "૮˶• ﻌ •˶ა
-./づ~ ♡"
+    echo "Escriba \"Si\" si desea confirmar la adopción"
+    echo "૮˶• ﻌ •˶ა"
+    echo "./づ~ ♡"
+    
     read confirmacion
-
-    if [ "$confirmacion" = "si" ] || [ "$confirmacion" = "Si" ] || [ "$confirmacion" = "SI" ]; then
+    if echo "$confirmacion" | grep -iq '^si$'; then
         sed -i "${mascota}d" mascotas_disponibles.txt
+        echo "$mascotaAdoptar $(date '+%d/%m/%y')" >> adopciones.txt
+    else
+        echo "Volviendo al menu"
+        sleep 1
+        menu_cliente
     fi
 
     menu_cliente
@@ -74,43 +87,45 @@ mascota_adopcion() {
 }
 
 menu_cliente() {
-clear
-echo "˚ʚ♡ɞ˚MENU˚ʚ♡ɞ˚"
-echo "1- Mascotas disponibles para adopción"
-echo "2- Adoptar mascota"
-echo "3- Salir"
-echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣄⢀⣀⣀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣤⣤⣤⣤⣤⣤⣀⣀⠀⠀⠹⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣴⠾⠛⠉⠉⠉⠀⠀⠀⠀⠀⠉⠉⠉⠛⠷⣶⣼⣿⣉⣁⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣠⡾⠛⠉⠛⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⡏⠉⠙⠛⢶⣄⠀⠀⠀⠀⠀
-⠀⠀⠀⢠⣾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⣿⣧⠀⠀⠀⠀
-⠀⠀⢠⣿⠃⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠈⢿⡇⠀⠀⠀
-⠀⠀⠹⣿⡎⠀⠀⠀⣠⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⢻⡆⠀⠀⣆⣿⡇⠀⠀⠀
-⠀⠀⠀⣿⡀⠀⡀⠀⣿⠁⠀⢠⣾⣿⡿⠆⠀⠀⠀⠀⠀⠀⢀⣾⣿⡿⠆⠀⠀⠀⢈⣿⠀⣄⣾⡿⠁⠀⠀⠀
-⠀⠀⠀⠘⣿⣧⣇⢀⣇⠀⠀⠘⣿⣿⣷⡆⠀⠀⠀⠀⠀⠀⠈⢿⣿⣷⠖⠀⠀⠀⢸⣿⣷⠿⠋⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠉⠙⠻⣿⣆⡀⠀⠀⠉⠉⠀⠀⠀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣸⣿⠁⣀⣀⣀⠀⠀⠀⠀
-⠀⢀⣠⡶⠾⠛⠓⠶⣿⡟⠀⠀⠀⠀⠀⠀⠠⣾⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⠟⠋⠉⠛⠻⣦⡀⠀
-⢀⣾⠋⠀⠀⠀⠀⠀⠘⣿⣠⣄⡀⠀⠀⠀⠀⠛⠿⠟⠁⠀⠀⠀⠀⠀⡀⡀⠀⣴⣾⡏⠀⠀⠀⠀⠀⠈⣿⡄
-⢸⣯⠀⢠⠀⠀⢀⣄⣠⣿⠿⢿⣷⣤⣦⣀⣤⣤⣤⣤⣀⣀⣀⣼⣆⣼⣷⣿⡾⠿⢿⣧⣀⣦⠀⠀⣤⠀⣸⡧
-⠘⠿⣷⣾⣷⣤⠾⠿⠛⠁⠀⠀⠀⠁⠀⠉⠉⠀⠀⠀⠈⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠉⠛⠻⠷⠾⠿⠟⠛⠁" 
-read option
-while [ "$option" != "1" ] && [ "$option" != "2" ] && [ "$option" != "3" ]; do
-    echo "Opción no válida, vuelva a ingresar opción"
+    clear
+    echo "˚ʚ♡ɞ˚MENU˚ʚ♡ɞ˚"
+    echo "Bienvenido/a $1"
+    echo "1- Mascotas disponibles para adopción"
+    echo "2- Adoptar mascota"
+    echo "3- Salir"
+    echo "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣶⣄⢀⣀⣀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣤⣤⣤⣤⣤⣤⣀⣀⠀⠀⠹⣿⣿⣿⣿⠟⠁⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣠⣴⠾⠛⠉⠉⠉⠀⠀⠀⠀⠀⠉⠉⠉⠛⠷⣶⣼⣿⣉⣁⠀⠀⠀⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⣠⡾⠛⠉⠛⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⡏⠉⠙⠛⢶⣄⠀⠀⠀⠀⠀
+    ⠀⠀⠀⢠⣾⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⣿⣧⠀⠀⠀⠀
+    ⠀⠀⢠⣿⠃⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠈⢿⡇⠀⠀⠀
+    ⠀⠀⠹⣿⡎⠀⠀⠀⣠⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⠀⢻⡆⠀⠀⣆⣿⡇⠀⠀⠀
+    ⠀⠀⠀⣿⡀⠀⡀⠀⣿⠁⠀⢠⣾⣿⡿⠆⠀⠀⠀⠀⠀⠀⢀⣾⣿⡿⠆⠀⠀⠀⢈⣿⠀⣄⣾⡿⠁⠀⠀⠀
+    ⠀⠀⠀⠘⣿⣧⣇⢀⣇⠀⠀⠘⣿⣿⣷⡆⠀⠀⠀⠀⠀⠀⠈⢿⣿⣷⠖⠀⠀⠀⢸⣿⣷⠿⠋⠀⠀⠀⠀⠀
+    ⠀⠀⠀⠀⠀⠉⠙⠻⣿⣆⡀⠀⠀⠉⠉⠀⠀⠀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣸⣿⠁⣀⣀⣀⠀⠀⠀⠀
+    ⠀⢀⣠⡶⠾⠛⠓⠶⣿⡟⠀⠀⠀⠀⠀⠀⠠⣾⣿⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⣿⠟⠋⠉⠛⠻⣦⡀⠀
+    ⢀⣾⠋⠀⠀⠀⠀⠀⠘⣿⣠⣄⡀⠀⠀⠀⠀⠛⠿⠟⠁⠀⠀⠀⠀⠀⡀⡀⠀⣴⣾⡏⠀⠀⠀⠀⠀⠈⣿⡄
+    ⢸⣯⠀⢠⠀⠀⢀⣄⣠⣿⠿⢿⣷⣤⣦⣀⣤⣤⣤⣤⣀⣀⣀⣼⣆⣼⣷⣿⡾⠿⢿⣧⣀⣦⠀⠀⣤⠀⣸⡧
+    ⠘⠿⣷⣾⣷⣤⠾⠿⠛⠁⠀⠀⠀⠁⠀⠉⠉⠀⠀⠀⠈⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠉⠛⠻⠷⠾⠿⠟⠛⠁" 
+
     read option
-done
-if [ "$option" == "1" ]; then
-    mascota_disponible
-elif [ "$option" == "2" ]; then
-    mascota_adopcion
-else 
-    exit
-fi
+    while [ "$option" != "1" ] && [ "$option" != "2" ] && [ "$option" != "3" ]; do
+        echo "Opción no válida, vuelva a ingresar opción"
+        read option
+    done
+    if [ "$option" == "1" ]; then
+        mascota_disponible
+    elif [ "$option" == "2" ]; then
+        mascota_adopcion
+    else 
+        exit
+    fi
 }
 
 menu_administrador() {
     clear
-    echo "Menu Administrador - Bienvenido $1"
+    echo "Menu Administrador - Bienvenido/a $1"
     echo "1- Registrar usuario"
     echo "2- Registrar mascota"
     echo "3- Ver estadisticas"
@@ -297,6 +312,16 @@ hayUsuarioNombre(){
         return 0
     fi
     return 1;
+}
+
+registrarMascota(){
+    echo "not implemented yet"
+    sleep 1.5
+}
+
+verEstadisticas(){
+    echo "not implemented yet"
+    sleep 1.5
 }
 
 login
