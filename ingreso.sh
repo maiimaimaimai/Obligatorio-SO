@@ -427,8 +427,66 @@ registrarMascota(){
 }
 
 verEstadisticas(){
-    echo "not implemented yet"
-    sleep 1.5
+    clear
+
+    declare -A tiposTotales
+    declare -A tiposAdoptados
+    declare -A meses
+    animalesAdoptados=0
+    sumaEdad=0
+    for mes in {1..12}
+    do
+        meses+=([mes]=0)
+    done
+    
+    while IFS="@" read -r id especie nombre genero edad descripcion fechaIng; do
+        if [ -z "${tiposAdoptados[$especie]}" ]; then
+            tiposTotales+=([$especie]=1)
+            tiposAdoptados+=([$especie]=0)
+        else
+            ((tiposTotales[$especie]++))
+        fi
+    done < mascotas_disponibles.txt
+
+    while IFS="@" read -r id especie nombre genero edad descripcion fechaIng fechaAdo; do
+        ((animalesAdoptados++))
+        ((sumaEdad+=$edad))
+        if [ -z "${tiposAdoptados[$especie]}" ]; then
+            tiposTotales+=([$especie]="1")
+            tiposAdoptados+=([$especie]="1")
+        else
+            ((tiposTotales[$especie]++))
+            ((tiposAdoptados[$especie]++))
+        fi
+
+        IFS='/' read -r dia mes anio <<< "$fechaAdo"
+        ((meses[$mes]+=1))
+
+    done < adopciones.txt
+
+    for tipo in ${!tiposTotales[@]}
+    do
+        porcentaje=$(( 100 * ${tiposAdoptados[$tipo]} / ${tiposTotales[$tipo]} ))
+        echo "Porcentaje de adopción para $tipo = $porcentaje%"
+    done
+
+    mejorMes=0
+    maxAdopciones=0
+    for mes in {1..12}
+    do
+        mesActualAdop=$((${meses[$mes]}))
+        if [ "$mesActualAdop" -gt "$maxAdopciones" ]; then
+            maxAdopciones=$mesActualAdop
+            mejorMes=$mes
+        fi
+    done
+    echo "El mes en el que se realizan más adopciones es $mejorMes"
+
+    promedio=$(($sumaEdad / $animalesAdoptados))
+    echo "La edad primedio de los animales adoptados es $promedio"
+
+    echo "Ingrese cualquier tecla para volver al menú"
+    read cualquierTecla
 }
 
 login

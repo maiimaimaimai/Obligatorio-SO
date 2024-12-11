@@ -1,7 +1,7 @@
-031 - Perro - Rex - Macho - 5 - Juguetón - 15/03/2024
-005 - Perro - adad - Macho - 5 - Juguetón - 15/03/2024
-033 - Gato - ad - Macho - 5 - Juguetón - 15/03/2024
-001 - Pez - Fishy - Hembra - 1 - yqs es un pez naranja - 10/12/24
-002 - Pez - Fisha - Macho - 1 - es el amigo de Fishy - 10/12/24
-034 - Ornitorrinco - Perry - Macho - 6 - un simple ornitorrinco familiero - 10/12/24
-007 - Caballo - JamesBond - Macho - 34 - apellido, nombre apellido - 10/12/24
+031@Perro@Rex@Macho@5@Juguetón@15/03/2024
+005@Perro@adad@Macho@5@Juguetón@15/03/2024
+033@Gato@ad@Macho@5@Juguetón@15/03/2024
+001@Pez@Fishy@Hembra@1@yqs es un pez naranja@10/12/24
+002@Pez@Fisha@Macho@1@es el amigo de Fishy@10/12/24
+034@Ornitorrinco@Perry@Macho@6@un simple ornitorrinco familiero@10/12/24
+007@Caballo@JamesBond@Macho@34@apellido, nombre apellido@10/12/24
