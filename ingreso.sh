@@ -119,7 +119,13 @@ menu_cliente() {
     elif [ "$option" == "2" ]; then
         mascota_adopcion
     else 
-        exit
+        echo "Presione X para salir, de lo contrario será redirigido al inicio de seción"
+        read salir
+        if echo "$salir" | grep -iq '^x$'; then
+            exit
+        else
+            login
+        fi
     fi
 }
 
@@ -144,15 +150,21 @@ menu_administrador() {
         elif [ "$option" == "3" ]; then
             verEstadisticas
             menu_administrador
-        else 
-            exit
+        else
+            echo "Presione X para salir, de lo contrario será redirigido al inicio de seción"
+            read salir
+            if echo "$salir" | grep -iq '^x$'; then
+                exit
+            else
+                login
+            fi
         fi
 }
 
 registrarUsuario(){
     clear
     echo "Registro de usuario:"
-    #ingreso de
+    #ingreso de nombre
     echo "Ingresar nombre"
     read nombre
     while true; do
@@ -173,7 +185,7 @@ registrarUsuario(){
         fi
     done
 
-    #ingreso de
+    #ingreso de cedula
     echo "Ingresar cedula"
     read cedula
     while true; do
@@ -190,7 +202,7 @@ registrarUsuario(){
         fi
     done
 
-    #ingreso de
+    #ingreso de numero de telefono
     echo "Ingresar numero de telefono"
     read numero
     while true; do
@@ -207,7 +219,7 @@ registrarUsuario(){
         fi
     done
 
-    #ingreso de
+    #ingreso de fecha
     echo "Ingresar fecha (DD/MM/AAAA):"
     read fecha
     while true; do
@@ -224,7 +236,7 @@ registrarUsuario(){
         fi
     done
 
-    #ingreso de
+    #ingreso de permisos
     echo "Conceder permisos de administrador? (S/N)"
     read permisos
     while true; do
@@ -241,7 +253,7 @@ registrarUsuario(){
         fi
     done
 
-    #ingreso de
+    #ingreso de contraseña
     echo "Ingrese una contraseña"
     read contra
     while true; do
@@ -291,18 +303,8 @@ registrarUsuario(){
     fi
     
     sleep 1.5
-    echo "Ingrese X para volver al menú"
-    
-    read salir
-    while true; do
-        if ! echo "$salir" | grep -qE '^[xX]$'; then
-            echo "No se ingresó una respuesta válida"
-            echo "Ingrese X para volver al menú (S/N)"
-            read salir
-        else
-            break
-        fi
-    done
+    echo "Ingrese cualquier tecla para volver al menú"
+    read cualquierTecla
 }
 
 hayUsuarioNombre(){
@@ -315,8 +317,113 @@ hayUsuarioNombre(){
 }
 
 registrarMascota(){
-    echo "not implemented yet"
-    sleep 1.5
+    clear
+    echo "Registro de mascota:"
+
+    #ingreso de identificador
+    echo "Ingresar número identificador"
+    read id
+    while true; do
+        if [ -z "$id" ]; then
+            echo "No se ingresó un numero"
+            echo "Vuelva a ingresar un numero"
+            read numero
+        elif ! echo "$id" | grep -qE '^[0-9]+$'; then
+            echo "Se ingresó un caracter inválido. Solo caracteres numéricos permitidos"
+            echo "Vuelva a ingresar un numero"
+            read id
+        else 
+            break
+        fi
+    done
+
+    #ingreso de especie
+    echo "Ingresar especie"
+    read especie
+    while true; do
+        if [ -z "$especie" ]; then
+            echo "No se ingresó un especie"
+            echo "Vuelva a ingresar un especie"
+            read especie
+        elif echo "$especie" | grep -qE ' '; then
+            echo "Se ingresó un caracter inválido, no se permiten espacios"
+            echo "Vuelva a ingresar un especie"
+            read especie
+        else
+            break
+        fi
+    done
+
+    #ingreso de nombre
+    echo "Ingresar nombre"
+    read nombre
+    while true; do
+        if [ -z "$nombre" ]; then
+            echo "No se ingresó un nombre"
+            echo "Vuelva a ingresar un nombre"
+            read nombre
+        elif echo "$nombre" | grep -q ' '; then
+            echo "Se ingresó un caracter inválido, no se permiten espacios"
+            echo "Vuelva a ingresar un nombre"
+            read nombre
+        else
+            break
+        fi
+    done
+
+    #ingreso de sexo
+    echo "Ingresar sexo (Macho/Hembra)"
+    read sexo
+    while true; do
+        if [ -z "$sexo" ]; then
+            echo "No se ingresó un sexo"
+            echo "Vuelva a ingresar un sexo"
+            read sexo
+        elif ! echo "$sexo" | grep -iqE '^(macho|hembra)$'; then
+            echo "No se ingresó un sexo válido"
+            echo "Vuelva a ingresar un sexo"
+            read sexo
+        else
+            break
+        fi
+    done
+
+    #ingreso de edad
+    echo "Ingresar edad"
+    read edad
+    while true; do
+        if [ -z "$edad" ]; then
+            echo "No se ingresó una edad"
+            echo "Vuelva a ingresar una edad"
+            read edad
+        elif ! echo "$edad" | grep -qE '^[0-9]+$'; then
+            echo "No se ingresó una edad válida"
+            echo "Vuelva a ingresar una edad"
+            read edad
+        else
+            break
+        fi
+    done
+
+    #ingreso de descripcion
+    echo "Ingresar una descripción"
+    read descripcion
+    while true; do
+        if [ -z "$descripcion" ]; then
+            echo "No se ingresó una descripcion"
+            echo "Vuelva a ingresar una descripcion"
+            read descripcion
+        else
+            break
+        fi
+    done
+
+    echo "$id - $especie - $nombre - $sexo - $edad - $descripcion - $(date '+%d/%m/%y')" >> "mascotas_disponibles.txt"
+
+    echo "$especie $nombre ingresado con éxito"
+    sleep 1
+    echo "Ingrese cualquier tecla para salir"
+    read cualquierTecla
 }
 
 verEstadisticas(){
