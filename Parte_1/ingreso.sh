@@ -31,7 +31,7 @@ login() {
 
 mascota_disponible() {
     clear
-    while IFS=" - " read -r id especie nombre genero edad descripcion fecha; do 
+    while IFS="@" read -r id especie nombre genero edad descripcion fecha; do 
         echo "$nombre - $especie - $edad - $descripcion";
     done < mascotas_disponibles.txt
     echo -e
@@ -48,7 +48,7 @@ mascota_adopcion() {
     clear
     index=1;
 
-    while IFS=" - " read -r id especie nombre genero edad descripcion fecha; do
+    while IFS="@" read -r id especie nombre genero edad descripcion fecha; do
         echo "$index - $nombre";
         ((index++));
     done < mascotas_disponibles.txt
